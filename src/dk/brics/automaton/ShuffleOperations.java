@@ -114,7 +114,7 @@ final public class ShuffleOperations {
 	 * Complexity: proportional to the product of the numbers of states (if <code>a</code>
 	 * is already deterministic).
 	 */ 
-	public static String shuffleSubsetOf(Collection<Automaton> ca, Automaton a, Character suspend_shuffle, Character resume_shuffle) {
+	public static String shuffleSubsetOf(Collection<Automaton> ca, Automaton a, Integer suspend_shuffle, Integer resume_shuffle) {
 		if (ca.size() == 0)
 			return null;
 		if (ca.size() == 1) {
@@ -174,8 +174,8 @@ final public class ShuffleOperations {
 						j--;
 					while (j < ta2.length) {
 						Transition t2 = ta2[j++];
-						char min = t1.min;
-						char max = t1.max;
+						int min = t1.min;
+						int max = t1.max;
 						if (t2.min > min)
 							min = t2.min;
 						if (t2.max < max)
@@ -188,13 +188,13 @@ final public class ShuffleOperations {
 					}
 					Transition[] at = lt.toArray(new Transition[lt.size()]);
 					Arrays.sort(at, tc);
-					char min = t1.min;
+					int min = t1.min;
 					for (int k = 0; k < at.length; k++) {
 						if (at[k].min > min)
 							break;
 						if (at[k].max >= t1.max)
 							continue loop;
-						min = (char)(at[k].max + 1);
+						min = (int)(at[k].max + 1);
 					}
 					ShuffleConfiguration nc = new ShuffleConfiguration(c, i1, t1.to, min);
 					StringBuilder sb = new StringBuilder();
@@ -220,29 +220,29 @@ final public class ShuffleOperations {
 		return null;
 	}
 
-	private static void add(Character suspend_shuffle, Character resume_shuffle, 
+	private static void add(Integer suspend_shuffle, Integer resume_shuffle, 
 			                LinkedList<ShuffleConfiguration> pending, Set<ShuffleConfiguration> visited, 
-			                ShuffleConfiguration c, int i1, Transition t1, Transition t2, char min, char max) {
-		final char HIGH_SURROGATE_BEGIN = '\uD800'; 
-		final char HIGH_SURROGATE_END = '\uDBFF'; 
+			                ShuffleConfiguration c, int i1, Transition t1, Transition t2, int min, int max) {
+		final int HIGH_SURROGATE_BEGIN = '\uD800'; 
+		final int HIGH_SURROGATE_END = '\uDBFF'; 
 		if (suspend_shuffle != null && min <= suspend_shuffle && suspend_shuffle <= max && min != max) {
 			if (min < suspend_shuffle)
-				add(suspend_shuffle, resume_shuffle, pending, visited, c, i1, t1, t2, min, (char)(suspend_shuffle - 1));
+				add(suspend_shuffle, resume_shuffle, pending, visited, c, i1, t1, t2, min, (int)(suspend_shuffle - 1));
 			add(suspend_shuffle, resume_shuffle, pending, visited, c, i1, t1, t2, suspend_shuffle, suspend_shuffle);
 			if (suspend_shuffle < max)
-				add(suspend_shuffle, resume_shuffle, pending, visited, c, i1, t1, t2, (char)(suspend_shuffle + 1), max);
+				add(suspend_shuffle, resume_shuffle, pending, visited, c, i1, t1, t2, (int)(suspend_shuffle + 1), max);
 		} else if (resume_shuffle != null && min <= resume_shuffle && resume_shuffle <= max && min != max) {
 			if (min < resume_shuffle)
-				add(suspend_shuffle, resume_shuffle, pending, visited, c, i1, t1, t2, min, (char)(resume_shuffle - 1));
+				add(suspend_shuffle, resume_shuffle, pending, visited, c, i1, t1, t2, min, (int)(resume_shuffle - 1));
 			add(suspend_shuffle, resume_shuffle, pending, visited, c, i1, t1, t2, resume_shuffle, resume_shuffle);
 			if (resume_shuffle < max)
-				add(suspend_shuffle, resume_shuffle, pending, visited, c, i1, t1, t2, (char)(resume_shuffle + 1), max);
+				add(suspend_shuffle, resume_shuffle, pending, visited, c, i1, t1, t2, (int)(resume_shuffle + 1), max);
 		} else if (min < HIGH_SURROGATE_BEGIN && max >= HIGH_SURROGATE_BEGIN) {
-			add(suspend_shuffle, resume_shuffle, pending, visited, c, i1, t1, t2, min, (char)(HIGH_SURROGATE_BEGIN - 1));
+			add(suspend_shuffle, resume_shuffle, pending, visited, c, i1, t1, t2, min, (int)(HIGH_SURROGATE_BEGIN - 1));
 			add(suspend_shuffle, resume_shuffle, pending, visited, c, i1, t1, t2, HIGH_SURROGATE_BEGIN, max);
 		} else if (min <= HIGH_SURROGATE_END && max > HIGH_SURROGATE_END) {
 			add(suspend_shuffle, resume_shuffle, pending, visited, c, i1, t1, t2, min, HIGH_SURROGATE_END);
-			add(suspend_shuffle, resume_shuffle, pending, visited, c, i1, t1, t2, (char)(HIGH_SURROGATE_END + 1), max);
+			add(suspend_shuffle, resume_shuffle, pending, visited, c, i1, t1, t2, (int)(HIGH_SURROGATE_END + 1), max);
 		} else {
 			ShuffleConfiguration nc = new ShuffleConfiguration(c, i1, t1.to, t2.to, min);
 			if (suspend_shuffle != null && min == suspend_shuffle) {
@@ -267,7 +267,7 @@ final public class ShuffleOperations {
 		ShuffleConfiguration prev;
 		State[] ca_states;
 		State a_state;
-		char min;
+		int min;
 		int hash;
 		boolean shuffle_suspended;
 		boolean surrogate;
@@ -285,7 +285,7 @@ final public class ShuffleOperations {
 			computeHash();
 		}
 		
-		ShuffleConfiguration(ShuffleConfiguration c, int i1, State s1, char min) {
+		ShuffleConfiguration(ShuffleConfiguration c, int i1, State s1, int min) {
 			prev = c;
 			ca_states = c.ca_states.clone();
 			a_state = c.a_state;
@@ -294,7 +294,7 @@ final public class ShuffleOperations {
 			computeHash();
 		}
 
-		ShuffleConfiguration(ShuffleConfiguration c, int i1, State s1, State s2, char min) {
+		ShuffleConfiguration(ShuffleConfiguration c, int i1, State s1, State s2, int min) {
 			prev = c;
 			ca_states = c.ca_states.clone();
 			a_state = c.a_state;

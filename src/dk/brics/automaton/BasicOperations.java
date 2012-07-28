@@ -319,8 +319,8 @@ final public class BasicOperations {
 							newstates.put(q, q);
 							r = q;
 						}
-						char min = t1[n1].min > t2[n2].min ? t1[n1].min : t2[n2].min;
-						char max = t1[n1].max < t2[n2].max ? t1[n1].max : t2[n2].max;
+						int min = t1[n1].min > t2[n2].min ? t1[n1].min : t2[n2].min;
+						int max = t1[n1].max < t2[n2].max ? t1[n1].max : t2[n2].max;
 						p.s.transitions.add(new Transition(min, max, r.s));
 					}
 			}
@@ -368,11 +368,11 @@ final public class BasicOperations {
 				for (int n2 = b2; n2 < t2.length && t1[n1].max >= t2[n2].min; n2++) {
 					if (t2[n2].min > min1)
 						return false;
-					if (t2[n2].max < Character.MAX_VALUE) 
+					if (t2[n2].max < Transition.MAX_VALUE) 
 						min1 = t2[n2].max + 1;
 					else {
-						min1 = Character.MAX_VALUE;
-						max1 = Character.MIN_VALUE;
+						min1 = Transition.MAX_VALUE;
+						max1 = Transition.MIN_VALUE;
 					}
 					StatePair q = new StatePair(t1[n1].to, t2[n2].to);
 					if (!visited.contains(q)) {
@@ -458,7 +458,7 @@ final public class BasicOperations {
 	 * Determinizes the given automaton using the given set of initial states. 
 	 */
 	static void determinize(Automaton a, Set<State> initialset) {
-		char[] points = a.getStartPoints();
+		int[] points = a.getStartPoints();
 		// subset construction
 		Map<Set<State>, Set<State>> sets = new HashMap<Set<State>, Set<State>>();
 		LinkedList<Set<State>> worklist = new LinkedList<Set<State>>();
@@ -487,12 +487,12 @@ final public class BasicOperations {
 					newstate.put(p, new State());
 				}
 				State q = newstate.get(p);
-				char min = points[n];
-				char max;
+				int min = points[n];
+				int max;
 				if (n + 1 < points.length)
-					max = (char)(points[n + 1] - 1);
+					max = (int)(points[n + 1] - 1);
 				else
-					max = Character.MAX_VALUE;
+					max = Transition.MAX_VALUE;
 				r.transitions.add(new Transition(min, max, q));
 			}
 		}
@@ -502,7 +502,7 @@ final public class BasicOperations {
 
 	/** 
 	 * Adds epsilon transitions to the given automaton.
-	 * This method adds extra character interval transitions that are equivalent to the given
+	 * This method adds extra integer interval transitions that are equivalent to the given
 	 * set of epsilon transitions. 
 	 * @param pairs collection of {@link StatePair} objects representing pairs of source/destination states 
 	 *        where epsilon transitions should be added
@@ -590,7 +590,7 @@ final public class BasicOperations {
 			return false;
 		if (a.initial.accept && a.initial.transitions.size() == 1) {
 			Transition t = a.initial.transitions.iterator().next();
-			return t.to == a.initial && t.min == Character.MIN_VALUE && t.max == Character.MAX_VALUE;
+			return t.to == a.initial && t.min == Transition.MIN_VALUE && t.max == Transition.MAX_VALUE;
 		}
 		return false;
 	}

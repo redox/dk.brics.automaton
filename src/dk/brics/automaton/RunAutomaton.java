@@ -52,21 +52,8 @@ public class RunAutomaton implements Serializable {
 	boolean[] accept;
 	int initial;
 	int[] transitions; // delta(state,c) = transitions[state*points.length + getCharClass(c)]
-	char[] points; // char interval start points
-	int[] classmap; // map from char number to class class
-
-	/** 
-	 * Sets alphabet table for optimal run performance. 
-	 */
-	final void setAlphabet() {
-		classmap = new int[Character.MAX_VALUE - Character.MIN_VALUE + 1];
-		int i = 0;
-		for (int j = 0; j <= Character.MAX_VALUE - Character.MIN_VALUE; j++) {
-			if (i + 1 < points.length && j == points[i + 1])
-				i++;
-			classmap[j] = i;
-		}
-	}
+	int[] points; // char interval start points
+	final int[] classmap; // map from char number to class class
 
 	/** 
 	 * Returns a string representation of this automaton. 
@@ -84,12 +71,12 @@ public class RunAutomaton implements Serializable {
 			for (int j = 0; j < points.length; j++) {
 				int k = transitions[i * points.length + j];
 				if (k != -1) {
-					char min = points[j];
-					char max;
+					int min = points[j];
+					int max;
 					if (j + 1 < points.length)
-						max = (char)(points[j + 1] - 1);
+						max = (int)(points[j + 1] - 1);
 					else
-						max = Character.MAX_VALUE;
+						max = Transition.MAX_VALUE;
 					b.append(" ");
 					Transition.appendCharString(min, b);
 					if (min != max) {
@@ -128,27 +115,24 @@ public class RunAutomaton implements Serializable {
 	 * Returns array of character class interval start points. The array should
 	 * not be modified by the caller.
 	 */
-	public char[] getCharIntervals() {
+	public int[] getCharIntervals() {
 		return points.clone();
 	}
 
 	/** 
 	 * Gets character class of given char. 
 	 */
-	int getCharClass(char c) {
+	int getCharClass(int c) {
 		return SpecialOperations.findIndex(c, points);
 	}
 
-	@SuppressWarnings("unused")
-	private RunAutomaton() {}
-
 	/**
 	 * Constructs a new <code>RunAutomaton</code> from a deterministic
-	 * <code>Automaton</code>. Same as <code>RunAutomaton(a, true)</code>.
+	 * <code>Automaton</code>. Same as <code>RunAutomaton(a, 0, false)</code>.
 	 * @param a an automaton
 	 */
 	public RunAutomaton(Automaton a) {
-		this(a, true);
+		this(a, 0, false);
 	}
 
 	/**
@@ -199,7 +183,7 @@ public class RunAutomaton implements Serializable {
 	 * @param tableize if true, a transition table is created which makes the <code>run</code> 
 	 *                 method faster in return of a higher memory usage
 	 */
-	public RunAutomaton(Automaton a, boolean tableize) {
+	public RunAutomaton(Automaton a, int maxInterval, boolean tableize) {
 		a.determinize();
 		points = a.getStartPoints();
 		Set<State> states = a.getStates();
@@ -219,8 +203,20 @@ public class RunAutomaton implements Serializable {
 					transitions[n * points.length + c] = q.number;
 			}
 		}
-		if (tableize)
-			setAlphabet();
+        /** 
+         * Sets alphabet table for optimal run performance. 
+         */
+		if (tableize) {
+	        classmap = new int[maxInterval + 1];
+	        int i = 0;
+	        for (int j = 0; j <= maxInterval; j++) {
+	            if (i + 1 < points.length && j == points[i + 1])
+	                i++;
+	            classmap[j] = i;
+	        }
+		} else {
+		    classmap = null;
+		}
 	}
 
 	/**
@@ -234,7 +230,7 @@ public class RunAutomaton implements Serializable {
 		if (classmap == null)
 			return transitions[state * points.length + getCharClass(c)];
 		else
-			return transitions[state * points.length + classmap[c - Character.MIN_VALUE]];
+			return transitions[state * points.length + classmap[c - Transition.MIN_VALUE]];
 	}
 
 	/** 

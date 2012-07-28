@@ -199,13 +199,13 @@ final public class SpecialOperations {
 	 * @param map map from characters to sets of characters (where characters 
 	 *            are <code>Character</code> objects)
 	 */
-	public static Automaton subst(Automaton a, Map<Character, Set<Character>> map) {
+	public static Automaton subst(Automaton a, Map<Integer, Set<Integer>> map) {
 		if (map.isEmpty())
 			return a.cloneIfRequired();
-		Set<Character> ckeys = new TreeSet<Character>(map.keySet());
-		char[] keys = new char[ckeys.size()];
+		Set<Integer> ckeys = new TreeSet<Integer>(map.keySet());
+		int[] keys = new int[ckeys.size()];
 		int j = 0;
-		for (Character c : ckeys)
+		for (Integer c : ckeys)
 			keys[j++] = c;
 		a = a.cloneExpandedIfRequired();
 		for (State s : a.getStates()) {
@@ -215,29 +215,29 @@ final public class SpecialOperations {
 				int index = findIndex(t.min, keys);
 				while (t.min <= t.max) {
 					if (keys[index] > t.min) {
-						char m = (char)(keys[index] - 1);
+						int m = (int)(keys[index] - 1);
 						if (t.max < m)
 							m = t.max;
 						s.transitions.add(new Transition(t.min, m, t.to));
-						if (m + 1 > Character.MAX_VALUE)
+						if (m + 1 > Transition.MAX_VALUE)
 							break;
-						t.min = (char)(m + 1);
+						t.min = (int)(m + 1);
 					} else if (keys[index] < t.min) {
-						char m;
+					    int m;
 						if (index + 1 < keys.length)
-							m = (char)(keys[++index] - 1);
+							m = (int)(keys[++index] - 1);
 						else
-							m = Character.MAX_VALUE;
+							m = Transition.MAX_VALUE;
 						if (t.max < m)
 							m = t.max;
 						s.transitions.add(new Transition(t.min, m, t.to));
-						if (m + 1 > Character.MAX_VALUE)
+						if (m + 1 > Transition.MAX_VALUE)
 							break;
-						t.min = (char)(m + 1);
+						t.min = (int)(m + 1);
 					} else { // found t.min in substitution map
-						for (Character c : map.get(t.min))
+						for (Integer c : map.get(t.min))
 							s.transitions.add(new Transition(c, t.to));
-						if (t.min + 1 > Character.MAX_VALUE)
+						if (t.min + 1 > Transition.MAX_VALUE)
 							break;
 						t.min++;
 						if (index + 1 < keys.length && keys[index + 1] == t.min)
@@ -256,7 +256,7 @@ final public class SpecialOperations {
 	 * Finds the largest entry whose value is less than or equal to c, 
 	 * or 0 if there is no such entry. 
 	 */
-	static int findIndex(char c, char[] points) {
+	static int findIndex(int c, int[] points) {
 		int a = 0;
 		int b = points.length;
 		while (b - a > 1) {
@@ -277,7 +277,7 @@ final public class SpecialOperations {
 	 * @param s string
 	 * @return new automaton
 	 */
-	public static Automaton subst(Automaton a, char c, String s) {
+	public static Automaton subst(Automaton a, int c, String s) {
 		a = a.cloneExpandedIfRequired();
 		Set<StatePair> epsilons = new HashSet<StatePair>();
 		for (State p : a.getStates()) {
@@ -288,9 +288,9 @@ final public class SpecialOperations {
 					p.transitions.add(t);
 				else {
 					if (t.min < c)
-						p.transitions.add(new Transition(t.min, (char)(c - 1), t.to));
+						p.transitions.add(new Transition(t.min, (int)(c - 1), t.to));
 					if (t.max > c)
-						p.transitions.add(new Transition((char)(c + 1), t.max, t.to));
+						p.transitions.add(new Transition((int)(c + 1), t.max, t.to));
 					if (s.length() == 0)
 						epsilons.add(new StatePair(p, t.to));
 					else {
@@ -326,7 +326,7 @@ final public class SpecialOperations {
 	 * <code>dest</code> define the starting points of corresponding new
 	 * intervals.
 	 */
-	public static Automaton homomorph(Automaton a, char[] source, char[] dest) {
+	public static Automaton homomorph(Automaton a, int[] source, int[] dest) {
 		a = a.cloneExpandedIfRequired();
 		for (State s : a.getStates()) {
 			Set<Transition> st = s.transitions;
@@ -334,15 +334,15 @@ final public class SpecialOperations {
 			for (Transition t : st) {
 				int min = t.min;
 				while (min <= t.max) {
-					int n = findIndex((char)min, source);
-					char nmin = (char)(dest[n] + min - source[n]);
-					int end = (n + 1 == source.length) ? Character.MAX_VALUE : source[n + 1] - 1;
+					int n = findIndex(min, source);
+					int nmin = (int)(dest[n] + min - source[n]);
+					int end = (n + 1 == source.length) ? Transition.MAX_VALUE : source[n + 1] - 1;
 					int length;
 					if (end < t.max)
 						length = end + 1 - min;
 					else
 						length = t.max + 1 - min;
-					s.transitions.add(new Transition(nmin, (char)(nmin + length - 1), t.to));
+					s.transitions.add(new Transition(nmin, (int)(nmin + length - 1), t.to));
 					min += length;
 				}
 			}
@@ -364,7 +364,7 @@ final public class SpecialOperations {
 	 */
 	public static Automaton projectChars(Automaton a, Set<Character> chars) {
 		Character[] c = chars.toArray(new Character[chars.size()]);
-		char[] cc = new char[c.length];
+		int[] cc = new int[c.length];
 		boolean normalchars = false;
 		for (int i = 0; i < c.length; i++)
 			if (c[i] == null)
@@ -465,7 +465,7 @@ final public class SpecialOperations {
 		} else 
 			for (Transition t : s.transitions)
 				for (int n = t.min; n <= t.max; n++) {
-					path.append((char)n);
+					path.append((int)n);
 					getStrings(t.to, strings, path, length - 1);
 					path.deleteCharAt(path.length() - 1);
 				}
@@ -512,7 +512,7 @@ final public class SpecialOperations {
 			if (pathstates.contains(t.to))
 				return false;
 			for (int n = t.min; n <= t.max; n++) {
-				path.append((char)n);
+				path.append((int)n);
 				if (t.to.accept) {
 					strings.add(path.toString());
 					if (limit >= 0 && strings.size() > limit)
@@ -571,13 +571,13 @@ final public class SpecialOperations {
 	 * @return automaton
 	 */
 	public static Automaton hexCases(Automaton a) {
-		Map<Character,Set<Character>> map = new HashMap<Character,Set<Character>>();
+		Map<Integer,Set<Integer>> map = new HashMap<Integer,Set<Integer>>();
 		for (char c1 = 'a', c2 = 'A'; c1 <= 'f'; c1++, c2++) {
-			Set<Character> ws = new HashSet<Character>();
-			ws.add(c1);
-			ws.add(c2);
-			map.put(c1, ws);
-			map.put(c2, ws);
+			Set<Integer> ws = new HashSet<Integer>();
+			ws.add((int) c1);
+			ws.add((int) c2);
+			map.put((int) c1, ws);
+			map.put((int) c2, ws);
 		}
 		Automaton ws = Datatypes.getWhitespaceAutomaton();
 		return ws.concatenate(a.subst(map)).concatenate(ws);		
@@ -590,13 +590,13 @@ final public class SpecialOperations {
 	 * @return automaton
 	 */
 	public static Automaton replaceWhitespace(Automaton a) {
-		Map<Character,Set<Character>> map = new HashMap<Character,Set<Character>>();
-		Set<Character> ws = new HashSet<Character>();
-		ws.add(' ');
-		ws.add('\t');
-		ws.add('\n');
-		ws.add('\r');
-		map.put(' ', ws);
+		Map<Integer,Set<Integer>> map = new HashMap<Integer,Set<Integer>>();
+		Set<Integer> ws = new HashSet<Integer>();
+		ws.add((int) ' ');
+		ws.add((int) '\t');
+		ws.add((int) '\n');
+		ws.add((int) '\r');
+		map.put((int) ' ', ws);
 		return a.subst(map);
 	}
 }

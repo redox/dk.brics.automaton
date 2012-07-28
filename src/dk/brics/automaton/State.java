@@ -106,7 +106,7 @@ public class State implements Serializable, Comparable<State> {
 	 * @return destination state, null if no matching outgoing transition
 	 * @see #step(char, Collection)
 	 */
-	public State step(char c) {
+	public State step(int c) {
 		for (Transition t : transitions)
 			if (t.min <= c && c <= t.max)
 				return t.to;
@@ -117,9 +117,9 @@ public class State implements Serializable, Comparable<State> {
 	 * Performs lookup in transitions, allowing nondeterminism.
 	 * @param c character to look up
 	 * @param dest collection where destination states are stored
-	 * @see #step(char)
+	 * @see #step(int)
 	 */
-	public void step(char c, Collection<State> dest) {
+	public void step(int c, Collection<State> dest) {
 		for (Transition t : transitions)
 			if (t.min <= c && c <= t.max)
 				dest.add(t.to);

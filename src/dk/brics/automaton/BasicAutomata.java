@@ -77,14 +77,14 @@ final public class BasicAutomata {
 	}
 	
 	/** 
-	 * Returns a new (deterministic) automaton that accepts any single character. 
+	 * Returns a new (deterministic) automaton that accepts any single Integer. 
 	 */
 	public static Automaton makeAnyChar() {
 		return makeCharRange(Character.MIN_VALUE, Character.MAX_VALUE);
 	}
 	
 	/** 
-	 * Returns a new (deterministic) automaton that accepts a single character of the given value. 
+	 * Returns a new (deterministic) automaton that accepts a single Integer of the given value. 
 	 */
 	public static Automaton makeChar(char c) {
 		Automaton a = new Automaton();
@@ -112,7 +112,7 @@ final public class BasicAutomata {
 	}
 	
 	/** 
-	 * Returns a new (deterministic) automaton that accepts a single character in the given set. 
+	 * Returns a new (deterministic) automaton that accepts a single Integer in the given set. 
 	 */
 	public static Automaton makeCharSet(String set) {
 		if (set.length() == 1)
@@ -156,7 +156,7 @@ final public class BasicAutomata {
 			char c = x.charAt(n);
 			s.addTransition(new Transition(c, atLeast(x, n + 1, initials, zeros && c == '0')));
 			if (c < '9')
-				s.addTransition(new Transition((char)(c + 1), '9', anyOfRightLength(x, n + 1)));
+				s.addTransition(new Transition((int)(c + 1), '9', anyOfRightLength(x, n + 1)));
 		}
 		return s;
 	}
@@ -171,9 +171,9 @@ final public class BasicAutomata {
 			s.setAccept(true);
 		else {
 			char c = x.charAt(n);
-			s.addTransition(new Transition(c, atMost(x, (char)n + 1)));
+			s.addTransition(new Transition(c, atMost(x, (int)n + 1)));
 			if (c > '0')
-				s.addTransition(new Transition('0', (char)(c - 1), anyOfRightLength(x, n + 1)));
+				s.addTransition(new Transition('0', (int)(c - 1), anyOfRightLength(x, n + 1)));
 		}
 		return s;
 	}
@@ -198,7 +198,7 @@ final public class BasicAutomata {
 				s.addTransition(new Transition(cx, atLeast(x, n + 1, initials, zeros && cx == '0')));
 				s.addTransition(new Transition(cy, atMost(y, n + 1)));
 				if (cx + 1 < cy)
-					s.addTransition(new Transition((char)(cx + 1), (char)(cy - 1), anyOfRightLength(x, n + 1)));
+					s.addTransition(new Transition((int)(cx + 1), (int)(cy - 1), anyOfRightLength(x, n + 1)));
 			}
 		}
 		return s;
@@ -264,7 +264,7 @@ final public class BasicAutomata {
 	
     /**
      * Returns a new (deterministic and minimal) automaton that accepts the union of the
-     * given set of strings. The input character sequences are internally sorted in-place,
+     * given set of strings. The input Integer sequences are internally sorted in-place,
      * so the input array is modified. 
      * @see StringUnionOperations
      */
@@ -303,7 +303,7 @@ final public class BasicAutomata {
 		if (i < n.length()) {
 			char c = n.charAt(i);
 			if (c != '0')
-				b.append("[0-" + (char)(c-1) + "][0-9]{" + (n.length() - i - 1) + "}|");
+				b.append("[0-" + (int)(c-1) + "][0-9]{" + (n.length() - i - 1) + "}|");
 			b.append(c);
 			maxInteger(n, i + 1, b);
 		}
@@ -331,7 +331,7 @@ final public class BasicAutomata {
 		if (i < n.length()) {
 			char c = n.charAt(i);
 			if (c != '9')
-				b.append("[" + (char)(c+1) + "-9][0-9]{" + (n.length() - i - 1) + "}|");
+				b.append("[" + (int)(c+1) + "-9][0-9]{" + (n.length() - i - 1) + "}|");
 			b.append(c);
 			minInteger(n, i + 1, b);
 		}
@@ -464,20 +464,20 @@ final public class BasicAutomata {
 			for (char w : done)
 				da[h++] = w;
 			Arrays.sort(da);
-			int from = Character.MIN_VALUE;
+			int from = Transition.MIN_VALUE;
 			int k = 0;
-			while (from <= Character.MAX_VALUE) {
+			while (from <= Transition.MAX_VALUE) {
 				while (k < da.length && da[k] == from) {
 					k++;
 					from++;
 				}
-				if (from <= Character.MAX_VALUE) {
-					int to = Character.MAX_VALUE;
+				if (from <= Transition.MAX_VALUE) {
+					int to = Transition.MAX_VALUE;
 					if (k < da.length) {
 						to = da[k]-1;
 						k++;
 					}
-					states[i].transitions.add(new Transition((char)from, (char)to, states[0]));
+					states[i].transitions.add(new Transition((int)from, (int)to, states[0]));
 					from = to+2;
 				}
 			}

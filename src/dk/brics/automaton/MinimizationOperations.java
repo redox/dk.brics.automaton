@@ -223,7 +223,7 @@ final public class MinimizationOperations {
 		Set<Transition> tr = a.initial.getTransitions();
 		if (tr.size() == 1) {
 			Transition t = tr.iterator().next();
-			if (t.to == a.initial && t.min == Character.MIN_VALUE && t.max == Character.MAX_VALUE)
+			if (t.to == a.initial && t.min == Transition.MIN_VALUE && t.max == Transition.MAX_VALUE)
 				return;
 		}
 		a.totalize();
@@ -235,7 +235,7 @@ final public class MinimizationOperations {
 			states[number] = q;
 			q.number = number++;
 		}
-		char[] sigma = a.getStartPoints();
+		int[] sigma = a.getStartPoints();
 		// initialize data structures
 		ArrayList<ArrayList<LinkedList<State>>> reverse = new ArrayList<ArrayList<LinkedList<State>>>();
 		for (int q = 0; q < states.length; q++) {
@@ -276,7 +276,7 @@ final public class MinimizationOperations {
 			partition.get(j).add(qq);
 			block[qq.number] = j;
 			for (int x = 0; x < sigma.length; x++) {
-				char y = sigma[x];
+				int y = sigma[x];
 				State p = qq.step(y);
 				reverse.get(p.number).get(x).add(qq);
 				reverse_nonempty[p.number][x] = true;

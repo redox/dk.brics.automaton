@@ -848,7 +848,7 @@ final public class Datatypes {
 			char[] cu = { (char)(0xd800 + (cp >> 10)), (char)(0xdc00 + (cp & 0x3ff)) };
 			return Automaton.makeString(new String(cu));
 		} else
-			return Automaton.makeChar((char)cp);
+			return Automaton.makeChar((char) cp);
 	}
 
 	private static Map<String,Automaton> buildMap(String[] exps) {
