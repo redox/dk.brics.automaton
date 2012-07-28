@@ -71,7 +71,7 @@ final public class BasicAutomata {
 		State s = new State();
 		a.initial = s;
 		s.accept = true;
-		s.transitions.add(new Transition(Character.MIN_VALUE, Character.MAX_VALUE, s));
+		s.transitions.add(new Transition(Transition.MIN_VALUE, Transition.MAX_VALUE, s));
 		a.deterministic = true;
 		return a;
 	}
@@ -80,15 +80,15 @@ final public class BasicAutomata {
 	 * Returns a new (deterministic) automaton that accepts any single Integer. 
 	 */
 	public static Automaton makeAnyChar() {
-		return makeCharRange(Character.MIN_VALUE, Character.MAX_VALUE);
+		return makeCharRange(Transition.MIN_VALUE, Transition.MAX_VALUE);
 	}
 	
 	/** 
-	 * Returns a new (deterministic) automaton that accepts a single Integer of the given value. 
+	 * Returns a new (deterministic) automaton that accepts a single character of the given value. 
 	 */
-	public static Automaton makeChar(char c) {
+	public static Automaton makeChar(int c) {
 		Automaton a = new Automaton();
-		a.singleton = Character.toString(c);
+		a.singleton = new String(Character.toChars(c));
 		a.deterministic = true;
 		return a;
 	}
@@ -97,7 +97,7 @@ final public class BasicAutomata {
 	 * Returns a new (deterministic) automaton that accepts a single char 
 	 * whose value is in the given interval (including both end points). 
 	 */
-	public static Automaton makeCharRange(char min, char max) {
+	public static Automaton makeCharRange(int min, int max) {
 		if (min == max)
 			return makeChar(min);
 		Automaton a = new Automaton();
@@ -112,7 +112,7 @@ final public class BasicAutomata {
 	}
 	
 	/** 
-	 * Returns a new (deterministic) automaton that accepts a single Integer in the given set. 
+	 * Returns a new (deterministic) automaton that accepts a single character in the given set. 
 	 */
 	public static Automaton makeCharSet(String set) {
 		if (set.length() == 1)
@@ -446,7 +446,7 @@ final public class BasicAutomata {
 			states[i+1] = new State();
 		State f = states[s.length()];
 		f.accept = true;
-		f.transitions.add(new Transition(Character.MIN_VALUE, Character.MAX_VALUE, f));
+		f.transitions.add(new Transition(Character.MIN_CODE_POINT, Character.MAX_CODE_POINT, f));
 		for (int i = 0; i < s.length(); i++) {
 			Set<Character> done = new HashSet<Character>();
 			char c = s.charAt(i);
