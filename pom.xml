@@ -2,7 +2,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>dk.brics.automaton</groupId>
 	<artifactId>automaton</artifactId>
-	<version>1.11-8-utf32-2</version>
+	<version>1.11-8-utf32-3-SNAPSHOT</version>
 	<packaging>jar</packaging>
 	<name>Automaton</name>
 	<description>A DFA/NFA (finite-state automata) implementation with
