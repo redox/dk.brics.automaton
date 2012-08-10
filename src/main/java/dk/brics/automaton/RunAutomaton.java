@@ -226,7 +226,7 @@ public class RunAutomaton implements Serializable {
 	 * only if a dead state is entered in an equivalent automaton with a total
 	 * transition function.)
 	 */
-	public int step(int state, char c) {
+	public int step(int state, int c) {
 		if (classmap == null)
 			return transitions[state * points.length + getCharClass(c)];
 		else
